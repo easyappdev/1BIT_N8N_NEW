@@ -102,6 +102,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/evolution
       - AUTHENTICATION_API_KEY=${ENCRYPTION_KEY}
       - VIRTUAL_HOST=evolutionapi.1bit.ar
+      - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=evolutionapi.1bit.ar
     depends_on:
       postgres:
@@ -117,6 +118,7 @@ services:
       - EVOLUTION_API_URL=http://evolution-api:8080
       - EVOLUTION_API_KEY=${ENCRYPTION_KEY}
       - VIRTUAL_HOST=wachatapi.1bit.ar
+      - VIRTUAL_PORT=3001
       - LETSENCRYPT_HOST=wachatapi.1bit.ar
     depends_on:
       postgres:
@@ -134,4 +136,5 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=https://wachatapi.1bit.ar
       - VIRTUAL_HOST=wachat.1bit.ar
+      - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=wachat.1bit.ar
