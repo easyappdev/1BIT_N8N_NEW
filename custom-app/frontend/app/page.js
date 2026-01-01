@@ -19,7 +19,18 @@ export default function Login() {
             localStorage.setItem('username', response.data.username);
             router.push('/chat');
         } catch (err) {
-            setError('Invalid username or password');
+            console.error('Login error:', err);
+            if (err.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                setError(err.response.data.error || 'Login failed. Please check your credentials.');
+            } else if (err.request) {
+                // The request was made but no response was received
+                setError('Network error: Unable to reach the server. Please check your connection and ensure the backend is running.');
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                setError('Application error: ' + err.message);
+            }
         }
     };
 
