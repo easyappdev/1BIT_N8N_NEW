@@ -15,7 +15,8 @@ router.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-        const match = await bcrypt.compare(password, user.password_hash);
+        // Plain text comparison (No Encryption as requested)
+        const match = (password === user.password_hash);
 
         if (!match) {
             console.log(`Login failed: Password mismatch for user '${username}'.`);

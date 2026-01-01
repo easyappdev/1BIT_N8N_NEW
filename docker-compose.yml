@@ -101,7 +101,7 @@ services:
     environment:
       - DATABASE_PROVIDER=postgresql
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/evolution
-      # - AUTHENTICATION_API_KEY=${ENCRYPTION_KEY}
+      - AUTHENTICATION_API_KEY=${ENCRYPTION_KEY}
       - VIRTUAL_HOST=evolutionapi.1bit.ar
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=evolutionapi.1bit.ar
@@ -117,7 +117,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/chat_app
       - JWT_SECRET=${ENCRYPTION_KEY}
       - EVOLUTION_API_URL=http://evolution-api:8080
-      # - EVOLUTION_API_KEY=${ENCRYPTION_KEY}
+      - EVOLUTION_API_KEY=${ENCRYPTION_KEY}
       - VIRTUAL_HOST=wachatapi.1bit.ar
       - VIRTUAL_PORT=3001
       - LETSENCRYPT_HOST=wachatapi.1bit.ar

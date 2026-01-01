@@ -26,8 +26,8 @@ async function run() {
         console.log('2. Deleting existing admin user...');
         await client.query("DELETE FROM users WHERE username = 'admin'");
 
-        console.log('3. Generating new password hash for "admin123"...');
-        const hash = await bcrypt.hash('admin123', 10);
+        console.log('3. Setting plain password "admin123" (No Encryption)...');
+        const hash = 'admin123';
 
         console.log('4. Inserting new admin user...');
         await client.query(

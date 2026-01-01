@@ -44,8 +44,7 @@ const initDB = async () => {
     // Seed Admin User if not exists (password: admin123)
     const res = await client.query('SELECT * FROM users WHERE username = $1', ['admin']);
     if (res.rows.length === 0) {
-      const bcrypt = require('bcrypt');
-      const hash = await bcrypt.hash('admin123', 10);
+      const hash = 'admin123'; // Storing plain text as requested
       await client.query('INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3)', ['admin', hash, 'admin']);
       console.log('Admin user created');
     }
