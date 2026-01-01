@@ -5,7 +5,7 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy:latest
     restart: always
-    container_name: nginx-proxy
+    container_name: nginx-proxy-wachat
     ports:
       - 80:80
       - 443:443
@@ -21,7 +21,7 @@ services:
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion:latest
     restart: always
-    container_name: letsencryptwachat
+    container_name: letsencrypt-wachat
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     volumes:
@@ -34,7 +34,7 @@ services:
   postgres:
     image: postgres:16
     restart: always
-    container_name: postgres
+    container_name: postgres-wachat
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -53,7 +53,7 @@ services:
   qdrant:
     image: qdrant/qdrant
     hostname: qdrant
-    container_name: qdrantwachat
+    container_name: qdrant-wachat
     restart: unless-stopped
     ports:
       - "6333:6333"
@@ -64,7 +64,7 @@ services:
     image: docker.n8n.io/n8nio/n8n:latest
     restart: always
     hostname: n8n
-    container_name: n8n
+    container_name: n8n-wachat
     ports:
       - "5678:5678"
     environment:
@@ -95,7 +95,7 @@ services:
   evolution-api:
     image: atendai/evolution-api:latest
     restart: always
-    container_name: evolution-api
+    container_name: evolution-api-wachat
     ports:
       - "8080:8080"
     environment:
@@ -110,7 +110,7 @@ services:
   chat-backend:
     build: ./custom-app/backend
     restart: always
-    container_name: chat-backend
+    container_name: chat-backend-wachat
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/chat_app
       - JWT_SECRET=${ENCRYPTION_KEY}
@@ -130,7 +130,7 @@ services:
       args:
         NEXT_PUBLIC_API_URL: https://wachatapi.1bit.ar
     restart: always
-    container_name: chat-frontend
+    container_name: chat-frontend-wachat
     environment:
       - NEXT_PUBLIC_API_URL=https://wachatapi.1bit.ar
       - VIRTUAL_HOST=wachat.1bit.ar
