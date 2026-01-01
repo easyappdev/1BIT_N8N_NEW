@@ -99,6 +99,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - DATABASE_PROVIDER=postgresql
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/evolution
       - AUTHENTICATION_API_KEY=${ENCRYPTION_KEY}
       - VIRTUAL_HOST=evolutionapi.1bit.ar
