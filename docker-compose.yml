@@ -42,7 +42,7 @@ services:
       - POSTGRES_NON_ROOT_USER
       - POSTGRES_NON_ROOT_PASSWORD
     volumes:
-      - /1BIT_N8N/postgresData:/var/lib/postgresql/data
+      - /1BIT_N8N_NEW/postgresData:/var/lib/postgresql/data
       - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
@@ -58,7 +58,7 @@ services:
     ports:
       - "6333:6333"
     volumes:
-      - /1BIT_N8N/qdrant_storage:/qdrant/storage
+      - /1BIT_N8N_NEW/qdrant_storage:/qdrant/storage
 
   n8n:
     image: docker.n8n.io/n8nio/n8n:latest
@@ -87,7 +87,7 @@ services:
       - LETSENCRYPT_HOST=${DOMAIN_NAME}
       - LETSENCRYPT_EMAIL=${SSL_EMAIL}
     volumes:
-      - /1BIT_N8N/n8nData:/home/node/.n8n
+      - /1BIT_N8N_NEW/n8nData:/home/node/.n8n
     depends_on:
       postgres:
         condition: service_healthy
