@@ -21,7 +21,7 @@ services:
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion:latest
     restart: always
-    container_name: letsencrypt
+    container_name: letsencryptwachat
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
     volumes:
@@ -53,7 +53,7 @@ services:
   qdrant:
     image: qdrant/qdrant
     hostname: qdrant
-    container_name: qdrant
+    container_name: qdrantwachat
     restart: unless-stopped
     ports:
       - "6333:6333"
