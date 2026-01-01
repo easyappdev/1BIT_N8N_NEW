@@ -1,0 +1,137 @@
+version: "3.8"
+
+services:
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:latest
+    restart: always
+    container_name: nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ${DOCKER_SOCKET_UNIX}:/tmp/docker.sock:ro
+      - ./nginx-proxy/certs:/etc/nginx/certs:rw
+      - ./nginx-proxy/vhostd:/etc/nginx/vhost.d:rw
+      - ./nginx-proxy/html:/usr/share/nginx/html:rw
+      - ./nginx-proxy/custom.conf:/etc/nginx/conf.d/custom.conf:rw
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion:latest
+    restart: always
+    container_name: letsencrypt
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - ./nginx-proxy/certs:/etc/nginx/certs:rw
+      - ./nginx-proxy/vhostd:/etc/nginx/vhost.d
+      - ./nginx-proxy/html:/usr/share/nginx/html:rw
+      - ./nginx-proxy/acme:/etc/acme.sh
+      - ${DOCKER_SOCKET_UNIX}:/var/run/docker.sock:ro
+
+  postgres:
+    image: postgres:16
+    restart: always
+    container_name: postgres
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_NON_ROOT_USER
+      - POSTGRES_NON_ROOT_PASSWORD
+    volumes:
+      - /1BIT_N8N/postgresData:/var/lib/postgresql/data
+      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant
+    hostname: qdrant
+    container_name: qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - /1BIT_N8N/qdrant_storage:/qdrant/storage
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: always
+    hostname: n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+      - N8N_SECURE_COOKIE=false
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      - N8N_HOST=${DOMAIN_NAME}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      #aca hay que poner el puerto es para que conecte el webhook de WA
+      - WEBHOOK_URL=https://${DOMAIN_NAME}:443/
+      - VIRTUAL_HOST=${DOMAIN_NAME}
+      - VIRTUAL_PORT=5678
+      - LETSENCRYPT_HOST=${DOMAIN_NAME}
+      - LETSENCRYPT_EMAIL=${SSL_EMAIL}
+    volumes:
+      - /1BIT_N8N/n8nData:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  evolution-api:
+    image: atendai/evolution-api:latest
+    restart: always
+    container_name: evolution-api
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/evolution
+      - AUTHENTICATION_API_KEY=${ENCRYPTION_KEY}
+      - VIRTUAL_HOST=evolutionapi.1bit.ar
+      - LETSENCRYPT_HOST=evolutionapi.1bit.ar
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  chat-backend:
+    build: ./custom-app/backend
+    restart: always
+    container_name: chat-backend
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/chat_app
+      - JWT_SECRET=${ENCRYPTION_KEY}
+      - EVOLUTION_API_URL=http://evolution-api:8080
+      - EVOLUTION_API_KEY=${ENCRYPTION_KEY}
+      - VIRTUAL_HOST=wachatapi.1bit.ar
+      - LETSENCRYPT_HOST=wachatapi.1bit.ar
+    depends_on:
+      postgres:
+        condition: service_healthy
+      evolution-api:
+        condition: service_started
+
+  chat-frontend:
+    build:
+      context: ./custom-app/frontend
+      args:
+        NEXT_PUBLIC_API_URL: https://wachatapi.1bit.ar
+    restart: always
+    container_name: chat-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=https://wachatapi.1bit.ar
+      - VIRTUAL_HOST=wachat.1bit.ar
+      - LETSENCRYPT_HOST=wachat.1bit.ar
