@@ -63,8 +63,8 @@ export default function Login() {
                         fontWeight: 'bold'
                     }}>Login</button>
                     <p style={{ marginTop: '20px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                        Env Var: {process.env.NEXT_PUBLIC_API_URL}<br />
-                        Axios BaseURL: {api.defaults.baseURL}
+                        Mode: Internal Docker Network Proxy<br />
+                        Target: /api (proxies to chat-backend-wachat:3001)
                     </p>
                 </form>
             </div>
