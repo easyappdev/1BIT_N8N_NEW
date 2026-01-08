@@ -118,9 +118,10 @@ services:
       - JWT_SECRET=${ENCRYPTION_KEY}
       - EVOLUTION_API_URL=http://evolution-api:8080
       - EVOLUTION_API_KEY=${ENCRYPTION_KEY}
-      - VIRTUAL_HOST=wachatapi.1bit.ar
-      - VIRTUAL_PORT=3001
-      - LETSENCRYPT_HOST=wachatapi.1bit.ar
+      # Backend is now internal-only, accessed via Frontend Proxy
+      # - VIRTUAL_HOST=wachatapi.1bit.ar
+      # - VIRTUAL_PORT=3001
+      # - LETSENCRYPT_HOST=wachatapi.1bit.ar
     depends_on:
       postgres:
         condition: service_healthy

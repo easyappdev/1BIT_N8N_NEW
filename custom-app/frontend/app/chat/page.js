@@ -184,14 +184,26 @@ export default function ChatPage() {
                     color: 'white'
                 }}>
                     <h2>1Bit Chats</h2>
-                    <button onClick={() => { localStorage.clear(); router.push('/'); }} style={{
-                        background: 'rgba(255,255,255,0.2)',
-                        border: 'none',
-                        color: 'white',
-                        padding: '5px 10px',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}>Logout</button>
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                        {typeof window !== 'undefined' && localStorage.getItem('role') === 'admin' && (
+                            <button onClick={() => router.push('/admin')} style={{
+                                background: 'rgba(255,255,255,0.2)',
+                                border: 'none',
+                                color: 'white',
+                                padding: '5px 10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                            }}>⚙️ Admin</button>
+                        )}
+                        <button onClick={() => { localStorage.clear(); router.push('/'); }} style={{
+                            background: 'rgba(255,255,255,0.2)',
+                            border: 'none',
+                            color: 'white',
+                            padding: '5px 10px',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}>Logout</button>
+                    </div>
                 </div>
                 <div className="chat-list">
                     {chats.map(chat => (
