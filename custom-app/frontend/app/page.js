@@ -63,7 +63,8 @@ export default function Login() {
                         fontWeight: 'bold'
                     }}>Login</button>
                     <p style={{ marginTop: '20px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                        Connecting to: {process.env.NEXT_PUBLIC_API_URL}
+                        Env Var: {process.env.NEXT_PUBLIC_API_URL}<br />
+                        Axios BaseURL: {api.defaults.baseURL}
                     </p>
                 </form>
             </div>
