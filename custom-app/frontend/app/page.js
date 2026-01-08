@@ -62,6 +62,9 @@ export default function Login() {
                         background: 'var(--primary-color)',
                         fontWeight: 'bold'
                     }}>Login</button>
+                    <p style={{ marginTop: '20px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+                        Connecting to: {process.env.NEXT_PUBLIC_API_URL}
+                    </p>
                 </form>
             </div>
         </div>
