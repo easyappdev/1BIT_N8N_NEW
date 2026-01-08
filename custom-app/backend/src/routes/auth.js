@@ -6,6 +6,7 @@ const { pool } = require('../config/db');
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    console.log('DEBUG: Login request received for:', username);
 
     try {
         const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
