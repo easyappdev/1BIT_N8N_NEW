@@ -53,7 +53,7 @@ router.patch('/:whatsappId/ai', async (req, res) => {
 });
 
 // Assign chat to a user (Admin only)
-router.patch('/:whatsappId/assign', async (req, res) => {
+router.patch('/:whatsappId([^/]+)/assign', async (req, res) => {
     const { whatsappId } = req.params;
     const { userId } = req.body; // id of the user to assign (can be null to unassign)
 

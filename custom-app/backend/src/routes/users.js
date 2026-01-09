@@ -19,7 +19,7 @@ router.use(isAdmin);
 router.get('/', async (req, res) => {
     try {
         // 'created_at' column does not exist in schema, removed it.
-        const result = await pool.query('SELECT id, username, role FROM users ORDER BY id ASC');
+        const result = await pool.query("SELECT id, username, role FROM users WHERE role = 'operator' ORDER BY id ASC");
         res.json(result.rows);
     } catch (error) {
         console.error("Error fetching users:", error);
