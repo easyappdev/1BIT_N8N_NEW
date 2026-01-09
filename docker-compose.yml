@@ -117,6 +117,10 @@ services:
       - CACHE_REDIS_ENABLED=false
       - CONFIG_SESSION_PHONE_VERSION=2.3000.1015901307
       - DATABASE_SAVE_DATA_INSTANCE=true
+      - CORS_ENABLED=true
+      - CORS_ORIGIN=*
+      - AUTHENTICATION_EXPOSE_IN_FETCH_QR=true
+
     volumes:
       - /1BIT_N8N_NEW/evolution_instances:/app/instances
       - /1BIT_N8N_NEW/evolution_config:/app/config
