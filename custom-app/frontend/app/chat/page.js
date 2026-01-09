@@ -55,12 +55,16 @@ export default function ChatPage() {
         return () => document.removeEventListener('paste', handlePaste);
     }, [selectedChat]);
 
-    // Auto Scroll to bottom whenever messages or selectedChat change
+    // Auto Scroll to bottom whenever messages change
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [messages, selectedChat]);
+        const timer = setTimeout(() => {
+            if (messagesEndRef.current) {
+                // 'auto' instead of 'smooth' can be more reliable for initial load
+                messagesEndRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [messages]);
 
     const fetchUsers = async () => {
         try {
@@ -89,8 +93,15 @@ export default function ChatPage() {
     const fetchChats = async () => {
         try {
             const res = await api.get('/chats');
-            setChats(res.data);
+            const data = res.data;
+            setChats(data);
             setLoading(false);
+
+            // If selectedChat is no longer in the list (unassigned), close view
+            if (selectedChat && !data.find(c => c.whatsapp_id === selectedChat.whatsapp_id)) {
+                setSelectedChat(null);
+                setMessages([]);
+            }
         } catch (err) {
             console.error(err);
             if (err.response && err.response.status === 403) router.push('/');
