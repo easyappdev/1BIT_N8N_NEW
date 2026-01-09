@@ -18,11 +18,12 @@ router.use(isAdmin);
 // List all users
 router.get('/', async (req, res) => {
     try {
-        const result = await pool.query('SELECT id, username, role, created_at FROM users ORDER BY id ASC');
+        // 'created_at' column does not exist in schema, removed it.
+        const result = await pool.query('SELECT id, username, role FROM users ORDER BY id ASC');
         res.json(result.rows);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        console.error("Error fetching users:", error);
+        res.status(500).json({ error: 'Server error: ' + error.message });
     }
 });
 
