@@ -135,6 +135,9 @@ services:
     build: ./custom-app/backend
     restart: always
     container_name: chat-backend-wachat
+    volumes:
+      - ./custom-app/backend:/app
+      - /app/node_modules
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_NON_ROOT_USER}:${POSTGRES_NON_ROOT_PASSWORD}@postgres:5432/chat_app
       - JWT_SECRET=${ENCRYPTION_KEY}
