@@ -13,6 +13,7 @@ export default function ChatPage() {
     const [uploading, setUploading] = useState(false);
     const [users, setUsers] = useState([]);
     const fileInputRef = useRef(null);
+    const messagesEndRef = useRef(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -53,6 +54,13 @@ export default function ChatPage() {
         document.addEventListener('paste', handlePaste);
         return () => document.removeEventListener('paste', handlePaste);
     }, [selectedChat]);
+
+    // Auto Scroll to bottom whenever messages or selectedChat change
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages, selectedChat]);
 
     const fetchUsers = async () => {
         try {
@@ -95,6 +103,13 @@ export default function ChatPage() {
             setMessages(res.data);
         } catch (err) {
             console.error(err);
+            if (err.response && err.response.status === 403) {
+                // If unassigned while viewing, close the chat
+                alert("Este chat ya no está asignado a tu usuario.");
+                setSelectedChat(null);
+                setMessages([]);
+                fetchChats(); // Refresh list
+            }
         }
     };
 
@@ -124,6 +139,14 @@ export default function ChatPage() {
             fetchMessages(selectedChat.whatsapp_id);
         } catch (err) {
             console.error(err);
+            if (err.response && err.response.status === 403) {
+                alert("No puedes enviar mensajes: este chat ya no está asignado a tu usuario.");
+                setSelectedChat(null);
+                setMessages([]);
+                fetchChats();
+            } else {
+                alert("Error al enviar mensaje");
+            }
         }
     };
 
@@ -145,6 +168,14 @@ export default function ChatPage() {
             fetchMessages(selectedChat.whatsapp_id);
         } catch (err) {
             console.error(err);
+            if (err.response && err.response.status === 403) {
+                alert("No puedes enviar archivos: este chat ya no está asignado a tu usuario.");
+                setSelectedChat(null);
+                setMessages([]);
+                fetchChats();
+            } else {
+                alert("Error al enviar archivo");
+            }
         } finally {
             setUploading(false);
         }
@@ -294,6 +325,7 @@ export default function ChatPage() {
                                 <div className="message-meta">{new Date(msg.timestamp).toLocaleTimeString()}</div>
                             </div>
                         ))}
+                        <div ref={messagesEndRef} />
                     </div>
 
                     <div className="input-area">

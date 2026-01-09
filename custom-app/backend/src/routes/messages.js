@@ -50,6 +50,17 @@ router.post('/', upload.single('file'), async (req, res) => {
     const file = req.file;
 
     try {
+        // SECURITY CHECK: If operator, verify assignment STILL exists before sending
+        if (req.user.role === 'operator') {
+            const assignmentCheck = await pool.query(
+                'SELECT 1 FROM chats WHERE whatsapp_id = $1 AND assigned_user_id = $2',
+                [chatId, req.user.id]
+            );
+            if (assignmentCheck.rows.length === 0) {
+                return res.status(403).json({ error: 'Chat no longer assigned to you' });
+            }
+        }
+
         let mediaType = null;
         let mediaUrl = null;
 
