@@ -83,39 +83,15 @@ router.post('/', upload.single('file'), async (req, res) => {
             const internalMediaUrl = file ? `http://chat-backend:3001/uploads/${file.filename}` : null;
 
             if (file) {
-                let endpoint = 'sendText'; // Fallback
-                let payload = {
+                const payload = {
                     number: chatId,
-                    options: { delay: 1200, presence: "composing" }
+                    mediatype: mediaType,
+                    media: internalMediaUrl,
+                    caption: content || (mediaType === 'document' ? file.originalname : ""),
+                    delay: 1200
                 };
 
-                if (mediaType === 'image') {
-                    endpoint = 'sendMedia'; // Check Evolution API docs, usually sendMedia or sendImage
-                    // Evolution v1.6+ uses sendMedia for everything or specific endpoints
-                    // Assuming 'sendMedia' generic or specific
-                    // Let's use specific if available or generic structure
-                    payload.mediaMessage = {
-                        mediatype: "image",
-                        caption: content || "",
-                        media: internalMediaUrl
-                    }
-                } else if (mediaType === 'audio') {
-                    endpoint = 'sendWhatsAppAudio';
-                    payload.audioMessage = {
-                        audio: internalMediaUrl
-                    }
-                } else {
-                    endpoint = 'sendMedia'; // Document
-                    payload.mediaMessage = {
-                        mediatype: "document",
-                        caption: content || file.originalname,
-                        media: internalMediaUrl
-                    }
-                }
-
-                // NOTE: Verify endpoint names for specific Evolution version. 
-                // Common is /message/sendMedia
-                await axios.post(`${process.env.EVOLUTION_API_URL}/message/${endpoint}/${instanceName}`, payload, {
+                await axios.post(`${process.env.EVOLUTION_API_URL}/message/sendMedia/${instanceName}`, payload, {
                     headers: { 'apikey': apiKey }
                 });
 
@@ -123,10 +99,11 @@ router.post('/', upload.single('file'), async (req, res) => {
                 // Text only
                 await axios.post(`${process.env.EVOLUTION_API_URL}/message/sendText/${instanceName}`, {
                     number: chatId,
-                    options: { delay: 1200, presence: "composing" },
-                    textMessage: { text: content }
+                    text: content,
+                    delay: 1200
                 }, { headers: { 'apikey': apiKey } });
             }
+
         } catch (apiErr) {
             console.error("Evolution API Error", apiErr.message);
         }
