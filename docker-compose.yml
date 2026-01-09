@@ -101,7 +101,7 @@ services:
         condition: service_healthy
 
   evolution-api:
-    image: atendai/evolution-api:latest
+    image: atendai/evolution-api:v2.1.1
     restart: always
     container_name: evolution-api-wachat
     ports:
@@ -117,7 +117,7 @@ services:
       - CACHE_REDIS_ENABLED=false
       - INSTANCE_RECONNECT=true
       - DATABASE_SAVE_DATA_INSTANCE=true
-      - CONFIG_SESSION_PHONE_VERSION=2.3000.1015901307
+      - CONFIG_SESSION_PHONE_VERSION="2.3000.1015901307"
       - NODE_OPTIONS=--dns-result-order=ipv4first
       - NODE_ENV=production
       - CORS_ENABLED=true
