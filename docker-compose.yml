@@ -162,6 +162,7 @@ services:
         NEXT_PUBLIC_API_URL: https://wachatapi.1bit.ar
     restart: always
     container_name: chat-frontend-wachat
+    command: npm run dev
     volumes:
       - /1BIT_N8N_NEW/custom-app/frontend:/app
       - /app/node_modules

@@ -57,14 +57,15 @@ export default function ChatPage() {
 
     // Auto Scroll to bottom whenever messages change
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (messagesEndRef.current) {
-                // 'auto' instead of 'smooth' can be more reliable for initial load
-                messagesEndRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
-            }
-        }, 100);
-        return () => clearTimeout(timer);
-    }, [messages]);
+        if (messages.length > 0) {
+            const timer = setTimeout(() => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+                }
+            }, 150); // Slightly longer delay to ensure DOM stability
+            return () => clearTimeout(timer);
+        }
+    }, [messages, selectedChat]);
 
     const fetchUsers = async () => {
         try {
