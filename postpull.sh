@@ -1,16 +1,34 @@
 #!/bin/bash
 
-# Folder Permissions Fix
+# Script Defininitivo de Permisos para 1Bit WhatsApp Platform
+# DEBE EJECUTARSE CON SUDO: sudo ./postpull.sh
 
-# 1. n8n runs as user 'node' (UID 1000)
-chown -R 1000:1000 /1BIT_N8N_NEW/n8nData
-chmod -R 775 /1BIT_N8N_NEW/n8nData
+BASE_PATH="/1BIT_N8N_NEW"
 
-# 2. Postgres runs as user 'postgres' (UID 999) - THIS IS CRITICAL
-# If this is wrong, Postgres cannot read its own DB files
-chown -R 999:999 /1BIT_N8N_NEW/postgresData
-chmod -R 700 /1BIT_N8N_NEW/postgresData
+echo "=== Iniciando Correccion de Permisos en $BASE_PATH ==="
 
-# 3. Evolution API and others usually fine with standard user or 1000, 
-# but ensuring the base structure is accessible.
-chmod 755 /1BIT_N8N_NEW
+# 1. Permisos de la carpeta base
+chmod 755 $BASE_PATH
+
+# 2. Configurar n8n (UID 1000)
+echo "Configurando n8nData..."
+mkdir -p $BASE_PATH/n8nData
+chown -R 1000:1000 $BASE_PATH/n8nData
+chmod -R 775 $BASE_PATH/n8nData
+
+# 3. Configurar Postgres (UID 999) - CRITICO
+# Postgres 16 es muy estricto: requiere 700 en carpetas y 600 en archivos.
+echo "Configurando postgresData (UID 999)..."
+mkdir -p $BASE_PATH/postgresData
+chown -R 999:999 $BASE_PATH/postgresData
+find $BASE_PATH/postgresData -type d -exec chmod 700 {} +
+find $BASE_PATH/postgresData -type f -exec chmod 600 {} +
+
+# 4. Configurar Qdrant (UID 1000)
+echo "Configurando qdrant_storage..."
+mkdir -p $BASE_PATH/qdrant_storage
+chown -R 1000:1000 $BASE_PATH/qdrant_storage
+chmod -R 775 $BASE_PATH/qdrant_storage
+
+echo "=== Permisos aplicados con exito ==="
+echo "Ahora ejecuta: sudo docker-compose up -d"
