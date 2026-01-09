@@ -29,7 +29,13 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/api/ping', (req, res) => {
-    res.json({ status: 'ok', message: 'Backend v2.1 (Body-based Assign) Active', time: new Date().toISOString() });
+    console.log(`[DIAGNOSTIC] Ping request at ${new Date().toISOString()}`);
+    res.json({
+        status: 'ok',
+        version: 'v2.2-Nodemon',
+        sync: 'Active',
+        message: 'If you see this, code synchronization is working!'
+    });
 });
 
 app.get('/', (req, res) => {
@@ -37,5 +43,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT} [VERSION: v2.2-Nodemon]`);
 });
