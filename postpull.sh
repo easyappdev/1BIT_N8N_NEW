@@ -30,5 +30,11 @@ mkdir -p $BASE_PATH/qdrant_storage
 chown -R 1000:1000 $BASE_PATH/qdrant_storage
 chmod -R 775 $BASE_PATH/qdrant_storage
 
+# 5. Configurar Redis (UID 1000)
+echo "Configurando redisData..."
+mkdir -p $BASE_PATH/redisData
+chown -R 1000:1000 $BASE_PATH/redisData
+chmod -R 775 $BASE_PATH/redisData
+
 echo "=== Permisos aplicados con exito ==="
 echo "Ahora ejecuta: sudo docker-compose up -d"
