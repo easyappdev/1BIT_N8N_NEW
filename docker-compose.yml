@@ -113,20 +113,11 @@ services:
       - VIRTUAL_HOST=evolutionapi.1bit.ar
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=evolutionapi.1bit.ar
-      - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_HOST=redis
-      - CACHE_REDIS_PORT=6379
-      - CACHE_REDIS_PREFIX=EVO
-      - REDIS_URI=redis://redis:6379
-      - STORE_TYPE=redis
-      - STORE_REDIS_URI=redis://redis:6379
-      - STORE_REDIS_PREFIX=EVO
-
+      - SERVER_URL=https://evolutionapi.1bit.ar
+      - CACHE_REDIS_ENABLED=false
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_started
 
   chat-backend:
     build: ./custom-app/backend
