@@ -105,7 +105,8 @@ router.post('/', upload.single('file'), async (req, res) => {
             }
 
         } catch (apiErr) {
-            console.error("Evolution API Error", apiErr.message);
+            console.error("Evolution API Error:", apiErr.response?.data || apiErr.message);
+            console.error("Payload sent:", { chatId, content, instanceName });
         }
 
         res.json(result.rows[0]);
