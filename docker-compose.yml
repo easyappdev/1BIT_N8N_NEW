@@ -115,6 +115,11 @@ services:
       - LETSENCRYPT_HOST=evolutionapi.1bit.ar
       - SERVER_URL=https://evolutionapi.1bit.ar
       - CACHE_REDIS_ENABLED=false
+      - CONFIG_SESSION_PHONE_VERSION=2.3000.1015901307
+      - DATABASE_SAVE_DATA_INSTANCE=true
+    volumes:
+      - /1BIT_N8N_NEW/evolution_instances:/app/instances
+      - /1BIT_N8N_NEW/evolution_config:/app/config
     depends_on:
       postgres:
         condition: service_healthy

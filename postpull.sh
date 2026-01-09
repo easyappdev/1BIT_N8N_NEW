@@ -36,5 +36,12 @@ mkdir -p $BASE_PATH/redisData
 chown -R 1000:1000 $BASE_PATH/redisData
 chmod -R 775 $BASE_PATH/redisData
 
+# 6. Configurar Evolution API (UID 1000)
+echo "Configurando carpetas de Evolution API..."
+mkdir -p $BASE_PATH/evolution_instances
+mkdir -p $BASE_PATH/evolution_config
+chown -R 1000:1000 $BASE_PATH/evolution_instances $BASE_PATH/evolution_config
+chmod -R 775 $BASE_PATH/evolution_instances $BASE_PATH/evolution_config
+
 echo "=== Permisos aplicados con exito ==="
 echo "Ahora ejecuta: sudo docker-compose up -d"
