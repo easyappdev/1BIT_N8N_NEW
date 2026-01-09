@@ -11,6 +11,7 @@ export default function ChatPage() {
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    const [users, setUsers] = useState([]);
     const fileInputRef = useRef(null);
     const router = useRouter();
 
@@ -21,6 +22,9 @@ export default function ChatPage() {
             return;
         }
         fetchChats();
+        if (localStorage.getItem('role') === 'admin') {
+            fetchUsers();
+        }
         const interval = setInterval(fetchChats, 10000);
         return () => clearInterval(interval);
     }, []);
@@ -49,6 +53,27 @@ export default function ChatPage() {
         document.addEventListener('paste', handlePaste);
         return () => document.removeEventListener('paste', handlePaste);
     }, [selectedChat]);
+
+    const fetchUsers = async () => {
+        try {
+            const res = await api.get('/users');
+            setUsers(res.data);
+        } catch (err) {
+            console.error("Error fetching users", err);
+        }
+    };
+
+    const assignChat = async (userId) => {
+        if (!selectedChat) return;
+        try {
+            const targetId = userId ? parseInt(userId) : null;
+            await api.patch(`/chats/${selectedChat.whatsapp_id}/assign`, { userId: targetId });
+            setChats(chats.map(c => c.whatsapp_id === selectedChat.whatsapp_id ? { ...c, assigned_user_id: targetId } : c));
+            setSelectedChat({ ...selectedChat, assigned_user_id: targetId });
+        } catch (err) {
+            console.error("Failed to assign chat", err);
+        }
+    };
 
     const fetchChats = async () => {
         try {
@@ -232,8 +257,23 @@ export default function ChatPage() {
                 <div className="chat-window">
                     <div className="chat-header">
                         <h3>{selectedChat.name || selectedChat.whatsapp_id}</h3>
-                        <div>
-                            <label style={{ cursor: 'pointer' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                            {typeof window !== 'undefined' && localStorage.getItem('role') === 'admin' && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    <span style={{ fontSize: '12px' }}>Assign:</span>
+                                    <select
+                                        value={selectedChat.assigned_user_id || ''}
+                                        onChange={(e) => assignChat(e.target.value)}
+                                        style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                    >
+                                        <option value="">None</option>
+                                        {users.map(u => (
+                                            <option key={u.id} value={u.id}>{u.username}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                            <label style={{ cursor: 'pointer', fontSize: '14px' }}>
                                 <input
                                     type="checkbox"
                                     checked={selectedChat.ai_enabled}

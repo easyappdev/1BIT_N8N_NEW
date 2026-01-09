@@ -52,4 +52,27 @@ router.patch('/:whatsappId/ai', async (req, res) => {
     }
 });
 
+// Assign chat to a user (Admin only)
+router.patch('/:whatsappId/assign', async (req, res) => {
+    const { whatsappId } = req.params;
+    const { userId } = req.body; // id of the user to assign (can be null to unassign)
+
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Only admins can assign chats' });
+        }
+
+        if (userId !== null) {
+            const userRes = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+            if (userRes.rows.length === 0) return res.status(404).json({ error: 'Target user not found' });
+        }
+
+        await pool.query('UPDATE chats SET assigned_user_id = $1 WHERE whatsapp_id = $2', [userId, whatsappId]);
+        res.json({ success: true, assigned_user_id: userId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 module.exports = router;
