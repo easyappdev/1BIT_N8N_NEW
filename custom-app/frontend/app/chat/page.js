@@ -67,7 +67,10 @@ export default function ChatPage() {
         if (!selectedChat) return;
         try {
             const targetId = userId ? parseInt(userId) : null;
-            await api.patch(`/chats/${selectedChat.whatsapp_id}/assign`, { userId: targetId });
+            await api.patch(`/chats/assign`, {
+                whatsappId: selectedChat.whatsapp_id,
+                userId: targetId
+            });
             setChats(chats.map(c => c.whatsapp_id === selectedChat.whatsapp_id ? { ...c, assigned_user_id: targetId } : c));
             setSelectedChat({ ...selectedChat, assigned_user_id: targetId });
         } catch (err) {

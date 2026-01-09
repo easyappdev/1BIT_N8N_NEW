@@ -28,6 +28,10 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 
+app.get('/api/ping', (req, res) => {
+    res.json({ status: 'ok', message: 'Backend v2.1 (Body-based Assign) Active', time: new Date().toISOString() });
+});
+
 app.get('/', (req, res) => {
     res.send('Chat Backend Running');
 });
