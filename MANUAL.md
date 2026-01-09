@@ -68,3 +68,10 @@ Once n8n is processing messages, they will appear in your App.
 **Messages not sending**
 - Check if the Evolution API instance is still connected.
 - Check the `chat-backend` logs for errors (`docker logs chat-backend-wachat`).
+
+**QR Code not appearing / Black screen (Critical)**
+- This is usually caused by an outdated WhatsApp Web version in the configuration.
+- **Fix**:
+    1. Visit [WPPConnect WhatsApp Versions](https://wppconnect.io/pt-BR/whatsapp-versions/) to find the latest version (e.g., `2.3000.x`).
+    2. Open `docker-compose.yml` and update the `CONFIG_SESSION_PHONE_VERSION` variable.
+    3. Restart the service: `sudo docker compose up -d evolution-api`.
