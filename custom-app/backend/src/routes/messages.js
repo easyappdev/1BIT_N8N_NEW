@@ -31,12 +31,25 @@ router.get('/:chatId', async (req, res) => {
     const { chatId } = req.params;
 
     try {
+        let query = 'SELECT * FROM messages WHERE chat_id = $1';
+        let params = [chatId];
+
         if (req.user.role === 'operator') {
-            const chatRes = await pool.query('SELECT 1 FROM chats WHERE whatsapp_id = $1 AND assigned_user_id = $2', [chatId, req.user.id]);
+            const chatRes = await pool.query(
+                'SELECT history_visibility_at FROM chats WHERE whatsapp_id = $1 AND assigned_user_id = $2',
+                [chatId, req.user.id]
+            );
             if (chatRes.rows.length === 0) return res.status(403).json({ error: 'Access denied' });
+
+            const visibilityAt = chatRes.rows[0].history_visibility_at;
+            if (visibilityAt) {
+                query += ' AND timestamp >= $2';
+                params.push(visibilityAt);
+            }
         }
 
-        const result = await pool.query('SELECT * FROM messages WHERE chat_id = $1 ORDER BY timestamp ASC LIMIT 100', [chatId]);
+        query += ' ORDER BY timestamp ASC LIMIT 100';
+        const result = await pool.query(query, params);
         res.json(result.rows);
     } catch (error) {
         console.error(error);

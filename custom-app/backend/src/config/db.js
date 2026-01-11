@@ -23,7 +23,8 @@ const initDB = async () => {
         whatsapp_id VARCHAR(50) PRIMARY KEY,
         assigned_user_id INTEGER REFERENCES users(id),
         ai_enabled BOOLEAN DEFAULT TRUE,
-        name VARCHAR(100)
+        name VARCHAR(100),
+        history_visibility_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -47,6 +48,13 @@ const initDB = async () => {
       const hash = 'admin123'; // Storing plain text as requested
       await client.query('INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3)', ['admin', hash, 'admin']);
       console.log('Admin user created');
+    }
+
+    // Safety: Add history_visibility_at if it doesn't exist (migrations)
+    try {
+      await client.query('ALTER TABLE chats ADD COLUMN IF NOT EXISTS history_visibility_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP');
+    } catch (columnErr) {
+      // Column might exist or other issue, log but don't stop
     }
 
     console.log('Database tables initialized');

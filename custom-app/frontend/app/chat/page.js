@@ -16,6 +16,7 @@ export default function ChatPage() {
     const [contacts, setContacts] = useState([]);
     const [contactSearch, setContactSearch] = useState('');
     const [contactError, setContactError] = useState(null);
+    const [historyLimit, setHistoryLimit] = useState(5);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const router = useRouter();
@@ -123,10 +124,12 @@ export default function ChatPage() {
             const targetId = userId ? parseInt(userId) : null;
             await api.patch(`/chats/assign`, {
                 whatsappId: selectedChat.whatsapp_id,
-                userId: targetId
+                userId: targetId,
+                historyLimit: historyLimit
             });
             setChats(chats.map(c => c.whatsapp_id === selectedChat.whatsapp_id ? { ...c, assigned_user_id: targetId } : c));
             setSelectedChat({ ...selectedChat, assigned_user_id: targetId });
+            alert("Chat asignado con éxito");
         } catch (err) {
             console.error("Failed to assign chat", err);
         }
@@ -356,18 +359,32 @@ export default function ChatPage() {
                         <h3>{selectedChat.name || selectedChat.whatsapp_id}</h3>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                             {typeof window !== 'undefined' && localStorage.getItem('role') === 'admin' && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    <span style={{ fontSize: '12px' }}>Assign:</span>
-                                    <select
-                                        value={selectedChat.assigned_user_id || ''}
-                                        onChange={(e) => assignChat(e.target.value)}
-                                        style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ddd' }}
-                                    >
-                                        <option value="">None</option>
-                                        {users.map(u => (
-                                            <option key={u.id} value={u.id}>{u.username}</option>
-                                        ))}
-                                    </select>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <span style={{ fontSize: '12px' }}>Historial:</span>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={historyLimit}
+                                            onChange={(e) => setHistoryLimit(e.target.value)}
+                                            style={{ width: '45px', padding: '4px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                            title="Cantidad de mensajes previos visibles para el operador"
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <span style={{ fontSize: '12px' }}>Asignar:</span>
+                                        <select
+                                            value={selectedChat.assigned_user_id || ''}
+                                            onChange={(e) => assignChat(e.target.value)}
+                                            style={{ padding: '4px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                        >
+                                            <option value="">Ninguno</option>
+                                            {users.map(u => (
+                                                <option key={u.id} value={u.id}>{u.username}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             )}
                             <label style={{ cursor: 'pointer', fontSize: '14px' }}>

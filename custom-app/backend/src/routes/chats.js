@@ -54,20 +54,47 @@ router.patch('/:whatsappId/ai', async (req, res) => {
 
 // Assign chat to a user (Admin only)
 router.patch('/assign', async (req, res) => {
-    const { whatsappId, userId } = req.body;
+    const { whatsappId, userId, historyLimit } = req.body;
+    const limit = parseInt(historyLimit) || 5;
 
     try {
         if (req.user.role !== 'admin') {
             return res.status(403).json({ error: 'Only admins can assign chats' });
         }
 
+        let visibilityAt = new Date(); // Default: now
+
         if (userId !== null) {
             const userRes = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
             if (userRes.rows.length === 0) return res.status(404).json({ error: 'Target user not found' });
+
+            // Calculate history_visibility_at
+            // Find the N-th message from now backwards
+            const msgQuery = `
+                SELECT timestamp FROM messages 
+                WHERE chat_id = $1 
+                ORDER BY timestamp DESC 
+                OFFSET $2 LIMIT 1
+            `;
+            const msgRes = await pool.query(msgQuery, [whatsappId, limit - 1]);
+
+            if (msgRes.rows.length > 0) {
+                visibilityAt = msgRes.rows[0].timestamp;
+            } else {
+                // If fewer messages exist, show from the very first message
+                const firstMsg = await pool.query('SELECT timestamp FROM messages WHERE chat_id = $1 ORDER BY timestamp ASC LIMIT 1', [whatsappId]);
+                if (firstMsg.rows.length > 0) {
+                    visibilityAt = firstMsg.rows[0].timestamp;
+                }
+            }
         }
 
-        await pool.query('UPDATE chats SET assigned_user_id = $1 WHERE whatsapp_id = $2', [userId, whatsappId]);
-        res.json({ success: true, assigned_user_id: userId });
+        await pool.query(
+            'UPDATE chats SET assigned_user_id = $1, history_visibility_at = $2 WHERE whatsapp_id = $3',
+            [userId, visibilityAt, whatsappId]
+        );
+
+        res.json({ success: true, assigned_user_id: userId, history_visibility_at: visibilityAt });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error' });
