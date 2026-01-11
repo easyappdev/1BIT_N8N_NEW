@@ -40,7 +40,16 @@ router.get('/', async (req, res) => {
             console.log(`[CONTACTS] findContacts success`);
         }
 
-        res.json(response.data);
+        // Normalize contacts for the frontend
+        const normalized = (Array.isArray(response.data) ? response.data : []).map(c => ({
+            // CRITICAL: prioritize remoteJid/jid over the internal database 'id'
+            id: c.remoteJid || c.jid || c.id,
+            name: c.pushName || c.profileName || c.name || c.verifiedName || null,
+            pushname: c.pushName || null,
+            remoteJid: c.remoteJid || c.jid || null
+        }));
+
+        res.json(normalized);
     } catch (error) {
         const errorData = error.response?.data || error.message;
         console.error('[CONTACTS] Error details:', JSON.stringify(errorData));
