@@ -114,12 +114,17 @@ router.post('/', async (req, res) => {
         const existingChat = await pool.query('SELECT * FROM chats WHERE whatsapp_id = $1', [whatsappId]);
 
         if (existingChat.rows.length > 0) {
+            // If the name is different and we have a new better name, update it
+            if (contactName && existingChat.rows[0].name !== contactName) {
+                await pool.query('UPDATE chats SET name = $1 WHERE whatsapp_id = $2', [contactName, whatsappId]);
+                existingChat.rows[0].name = contactName;
+            }
             return res.json(existingChat.rows[0]);
         }
 
         // Create new chat
         const newChat = await pool.query(
-            'INSERT INTO chats (whatsapp_id, contact_name, ai_enabled) VALUES ($1, $2, $3) RETURNING *',
+            'INSERT INTO chats (whatsapp_id, name, ai_enabled) VALUES ($1, $2, $3) RETURNING *',
             [whatsappId, contactName || whatsappId, false] // AI disabled by default for new manual chats
         );
 

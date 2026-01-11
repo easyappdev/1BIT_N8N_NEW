@@ -40,23 +40,46 @@ router.get('/', async (req, res) => {
             console.log(`[CONTACTS] findContacts success`);
         }
 
-        // Normalize contacts for the frontend
-        const normalized = (Array.isArray(response.data) ? response.data : []).map(c => ({
-            // CRITICAL: prioritize remoteJid/jid over the internal database 'id'
+        // 3. Fallback: fetchAllGroups (Specific for groups)
+        let groups = [];
+        try {
+            const groupsRes = await axios.get(`${apiUrl}/group/fetchAllGroups/${instanceName}`, {
+                headers: { 'apikey': apiKey }
+            });
+            groups = Array.isArray(groupsRes.data) ? groupsRes.data : [];
+        } catch (gErr) {
+            console.error("Error fetching groups:", gErr.message);
+        }
+
+        // Normalize contacts and groups
+        const normalizedContacts = (Array.isArray(response.data) ? response.data : []).map(c => ({
             id: c.remoteJid || c.jid || c.id,
-            name: c.pushName || c.profileName || c.name || c.verifiedName || null,
-            pushname: c.pushName || null,
-            remoteJid: c.remoteJid || c.jid || null
+            name: c.subject || c.pushName || c.profileName || c.name || c.verifiedName || null,
+            isGroup: (c.remoteJid || c.jid || "").includes('@g.us')
         }));
 
-        res.json(normalized);
+        const normalizedGroups = groups.map(g => ({
+            id: g.id || g.remoteJid,
+            name: g.subject || g.name || null,
+            isGroup: true
+        }));
+
+        // Merge and remove duplicates (preferring group subject if available)
+        const all = [...normalizedGroups, ...normalizedContacts];
+        const unique = {};
+        all.forEach(item => {
+            if (!item.id) return;
+            if (!unique[item.id] || (item.name && !unique[item.id].name)) {
+                unique[item.id] = item;
+            }
+        });
+
+        res.json(Object.values(unique).filter(i => i.name));
     } catch (error) {
-        const errorData = error.response?.data || error.message;
-        console.error('[CONTACTS] Error details:', JSON.stringify(errorData));
+        console.error('Final contact fetch error:', error.message);
         res.status(500).json({
-            error: 'Failed to fetch contacts from WhatsApp',
-            debug: errorData,
-            url_attempted: `${apiUrl}/contact/getContacts/${instanceName}`
+            error: 'Failed to fetch contacts after multiple attempts',
+            details: error.message
         });
     }
 });
