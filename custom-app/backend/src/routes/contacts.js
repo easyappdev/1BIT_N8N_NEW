@@ -22,28 +22,22 @@ router.get('/', async (req, res) => {
     console.log(`[CONTACTS] Fetching for instance: ${instanceName} at ${apiUrl}`);
 
     try {
-        // Try getContacts first (cached/stored in DB)
+        // Try getContacts first (GET)
         let response;
         try {
-            response = await axios.get(`${apiUrl}/contact/getContacts/${instanceName}`, {
+            response = await axios.get(`${apiUrl}/chat/getContacts/${instanceName}`, {
                 headers: { 'apikey': apiKey }
             });
             console.log(`[CONTACTS] getContacts success: ${Array.isArray(response.data) ? response.data.length : 'non-array'} items`);
         } catch (getErr) {
-            console.warn(`[CONTACTS] getContacts failed, trying fetchContacts...`);
-            try {
-                response = await axios.get(`${apiUrl}/contact/fetchContacts/${instanceName}`, {
-                    headers: { 'apikey': apiKey }
-                });
-                console.log(`[CONTACTS] fetchContacts success`);
-            } catch (fetchErr) {
-                console.warn(`[CONTACTS] fetchContacts failed, trying findContacts...`);
-                // Standard v2 POST endpoint for searching all
-                response = await axios.post(`${apiUrl}/contact/findContacts/${instanceName}`, {}, {
-                    headers: { 'apikey': apiKey }
-                });
-                console.log(`[CONTACTS] findContacts success`);
-            }
+            console.warn(`[CONTACTS] getContacts failed, trying findContacts...`);
+            // In v2, findContacts is often POST /chat/findContacts/:instance
+            response = await axios.post(`${apiUrl}/chat/findContacts/${instanceName}`, {
+                where: {} // Fetch all
+            }, {
+                headers: { 'apikey': apiKey }
+            });
+            console.log(`[CONTACTS] findContacts success`);
         }
 
         res.json(response.data);
