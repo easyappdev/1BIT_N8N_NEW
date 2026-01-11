@@ -74,4 +74,33 @@ router.patch('/assign', async (req, res) => {
     }
 });
 
+// Create or get chat (Admin only)
+router.post('/', async (req, res) => {
+    const { whatsappId, contactName } = req.body;
+
+    try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Only admins can initiate new chats' });
+        }
+
+        // Check if chat already exists
+        const existingChat = await pool.query('SELECT * FROM chats WHERE whatsapp_id = $1', [whatsappId]);
+
+        if (existingChat.rows.length > 0) {
+            return res.json(existingChat.rows[0]);
+        }
+
+        // Create new chat
+        const newChat = await pool.query(
+            'INSERT INTO chats (whatsapp_id, contact_name, ai_enabled) VALUES ($1, $2, $3) RETURNING *',
+            [whatsappId, contactName || whatsappId, false] // AI disabled by default for new manual chats
+        );
+
+        res.status(201).json(newChat.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error creating chat' });
+    }
+});
+
 module.exports = router;

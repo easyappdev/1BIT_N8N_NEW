@@ -12,6 +12,9 @@ export default function ChatPage() {
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [users, setUsers] = useState([]);
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [contacts, setContacts] = useState([]);
+    const [contactSearch, setContactSearch] = useState('');
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const router = useRouter();
@@ -73,6 +76,36 @@ export default function ChatPage() {
             setUsers(res.data);
         } catch (err) {
             console.error("Error fetching users", err);
+        }
+    };
+
+    const fetchContacts = async () => {
+        try {
+            const res = await api.get('/contacts');
+            setContacts(res.data);
+        } catch (err) {
+            console.error("Error fetching contacts", err);
+        }
+    };
+
+    const startChat = async (contact) => {
+        try {
+            const res = await api.post('/chats', {
+                whatsappId: contact.id, // Evolution API contact ID is usually the JID/Number
+                contactName: contact.name || contact.pushname || contact.id
+            });
+            const newChat = res.data;
+
+            // Add to list if not already there (idempotency handled by backend too)
+            if (!chats.find(c => c.whatsapp_id === newChat.whatsapp_id)) {
+                setChats([newChat, ...chats]);
+            }
+
+            setSelectedChat(newChat);
+            setShowContactModal(false);
+        } catch (err) {
+            console.error("Failed to start chat", err);
+            alert("Error al iniciar el chat");
         }
     };
 
@@ -257,14 +290,24 @@ export default function ChatPage() {
                     <h2>1Bit Chats</h2>
                     <div style={{ display: 'flex', gap: '5px' }}>
                         {typeof window !== 'undefined' && localStorage.getItem('role') === 'admin' && (
-                            <button onClick={() => router.push('/admin')} style={{
-                                background: 'rgba(255,255,255,0.2)',
-                                border: 'none',
-                                color: 'white',
-                                padding: '5px 10px',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}>⚙️ Admin</button>
+                            <>
+                                <button onClick={() => { setShowContactModal(true); fetchContacts(); }} style={{
+                                    background: 'var(--secondary-color)',
+                                    border: 'none',
+                                    color: 'white',
+                                    padding: '5px 10px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}>+ Nuevo</button>
+                                <button onClick={() => router.push('/admin')} style={{
+                                    background: 'rgba(255,255,255,0.2)',
+                                    border: 'none',
+                                    color: 'white',
+                                    padding: '5px 10px',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                }}>⚙️</button>
+                            </>
                         )}
                         <button onClick={() => { localStorage.clear(); router.push('/'); }} style={{
                             background: 'rgba(255,255,255,0.2)',
@@ -273,7 +316,7 @@ export default function ChatPage() {
                             padding: '5px 10px',
                             borderRadius: '4px',
                             cursor: 'pointer'
-                        }}>Logout</button>
+                        }}>Salir</button>
                     </div>
                 </div>
                 <div className="chat-list">
@@ -369,6 +412,58 @@ export default function ChatPage() {
             ) : (
                 <div className="chat-window" style={{ justifyContent: 'center', alignItems: 'center', background: '#f0f2f5' }}>
                     <h3>Select a chat to start messaging</h3>
+                </div>
+            )}
+            {/* Contact Discovery Modal */}
+            {showContactModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.5)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', zIndex: 1000
+                }}>
+                    <div style={{
+                        background: 'white', padding: '20px', borderRadius: '8px',
+                        width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column'
+                    }}>
+                        <h3>Iniciar nuevo chat</h3>
+                        <input
+                            type="text"
+                            placeholder="Buscar contacto..."
+                            value={contactSearch}
+                            onChange={(e) => setContactSearch(e.target.value)}
+                            style={{ width: '100%', padding: '8px', margin: '10px 0', borderRadius: '4px', border: '1px solid #ddd' }}
+                        />
+                        <div style={{ overflowY: 'auto', flex: 1 }}>
+                            {contacts
+                                .filter(c =>
+                                    (c.name && c.name.toLowerCase().includes(contactSearch.toLowerCase())) ||
+                                    (c.id && c.id.includes(contactSearch))
+                                )
+                                .slice(0, 50)
+                                .map(contact => (
+                                    <div
+                                        key={contact.id}
+                                        onClick={() => startChat(contact)}
+                                        style={{
+                                            padding: '10px', borderBottom: '1px solid #eee',
+                                            cursor: 'pointer', hover: { background: '#f0f2f5' }
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.background = '#f0f2f5'}
+                                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                    >
+                                        <div style={{ fontWeight: 'bold' }}>{contact.name || contact.pushname || 'Sin nombre'}</div>
+                                        <div style={{ fontSize: '12px', color: '#888' }}>{contact.id}</div>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                        <button
+                            onClick={() => setShowContactModal(false)}
+                            style={{ marginTop: '10px', padding: '8px', cursor: 'pointer', borderRadius: '4px', border: 'none', background: '#ccc' }}
+                        >
+                            Cerrar
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
