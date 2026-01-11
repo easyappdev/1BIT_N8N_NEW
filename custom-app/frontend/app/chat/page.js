@@ -15,6 +15,7 @@ export default function ChatPage() {
     const [showContactModal, setShowContactModal] = useState(false);
     const [contacts, setContacts] = useState([]);
     const [contactSearch, setContactSearch] = useState('');
+    const [contactError, setContactError] = useState(null);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const router = useRouter();
@@ -80,11 +81,18 @@ export default function ChatPage() {
     };
 
     const fetchContacts = async () => {
+        setContactError(null);
         try {
             const res = await api.get('/contacts');
-            setContacts(res.data);
+            setContacts(Array.isArray(res.data) ? res.data : []);
+            if (!Array.isArray(res.data)) {
+                setContactError("La API no devolvió una lista de contactos válida.");
+            }
         } catch (err) {
             console.error("Error fetching contacts", err);
+            const msg = err.response?.data?.error || err.message;
+            const debug = err.response?.data?.debug ? JSON.stringify(err.response.data.debug) : '';
+            setContactError(`${msg} ${debug}`);
         }
     };
 
@@ -426,6 +434,13 @@ export default function ChatPage() {
                         width: '400px', maxHeight: '80vh', display: 'flex', flexDirection: 'column'
                     }}>
                         <h3>Iniciar nuevo chat</h3>
+
+                        {contactError && (
+                            <div style={{ color: 'red', background: '#ffebee', padding: '10px', borderRadius: '4px', fontSize: '12px', marginBottom: '10px' }}>
+                                ⚠️ {contactError}
+                            </div>
+                        )}
+
                         <input
                             type="text"
                             placeholder="Buscar contacto..."
