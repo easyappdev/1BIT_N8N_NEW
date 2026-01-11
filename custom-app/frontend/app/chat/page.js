@@ -259,31 +259,41 @@ export default function ChatPage() {
     if (loading) return <div>Loading...</div>;
 
     const renderMessageContent = (msg) => {
+        const getFullUrl = (url) => {
+            if (!url) return '';
+            if (url.startsWith('http') || url.startsWith('data:')) return url; // Already an absolute URL or Data URI
+            return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+        };
+
+        const mediaUrl = getFullUrl(msg.media_url);
+
         if (msg.media_type === 'image') {
             return (
                 <div>
-                    {/* Use full URL from backend (proxy/virtual host handles it?) 
-                         In backend we saved `/uploads/filename`.
-                         Frontend API base is `https://wachatapi.1bit.ar`.
-                         So we prepend that.
-                     */}
                     <img
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${msg.media_url}`}
+                        src={mediaUrl}
                         alt="Media"
                         style={{ maxWidth: '250px', borderRadius: '8px', cursor: 'pointer' }}
-                        onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL}${msg.media_url}`, '_blank')}
+                        onClick={() => window.open(mediaUrl, '_blank')}
                     />
                     {msg.content && <div style={{ marginTop: '5px' }}>{msg.content}</div>}
                 </div>
             );
         } else if (msg.media_type === 'audio') {
             return (
-                <audio controls src={`${process.env.NEXT_PUBLIC_API_URL}${msg.media_url}`} />
+                <audio controls src={mediaUrl} />
+            );
+        } else if (msg.media_type === 'video') {
+            return (
+                <video controls style={{ maxWidth: '250px', borderRadius: '8px' }}>
+                    <source src={mediaUrl} type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
             );
         } else if (msg.media_type === 'document') {
             return (
-                <a href={`${process.env.NEXT_PUBLIC_API_URL}${msg.media_url}`} target="_blank" rel="noreferrer" style={{ color: 'white', textDecoration: 'underline' }}>
-                    📄 Document
+                <a href={mediaUrl} target="_blank" rel="noreferrer" style={{ color: 'white', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    📄 {msg.content || 'Document'}
                 </a>
             );
         }
