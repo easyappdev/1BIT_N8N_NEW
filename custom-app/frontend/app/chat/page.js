@@ -17,6 +17,7 @@ export default function ChatPage() {
     const [contactSearch, setContactSearch] = useState('');
     const [contactError, setContactError] = useState(null);
     const [historyLimit, setHistoryLimit] = useState(5);
+    const [selectedImage, setSelectedImage] = useState(null);
     const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
     const router = useRouter();
@@ -267,6 +268,10 @@ export default function ChatPage() {
 
         const mediaUrl = getFullUrl(msg.media_url);
 
+        // RE-INSERTADO PARA DIAGNÓSTICO
+        if (msg.media_url) console.log(`DIAGNOSTICO: Msg ${msg.id} | Tipo: ${msg.media_type} | URL empieza con: ${mediaUrl.substring(0, 60)}... | Longitud: ${msg.media_url.length}`);
+        else if (msg.media_type && msg.media_type !== 'chat') console.warn(`ALERTA: Msg ${msg.id} es multimedia (${msg.media_type}) pero la URL está VACÍA.`);
+
         if (msg.media_type === 'image') {
             return (
                 <div>
@@ -274,7 +279,7 @@ export default function ChatPage() {
                         src={mediaUrl}
                         alt="Media"
                         style={{ maxWidth: '250px', borderRadius: '8px', cursor: 'pointer' }}
-                        onClick={() => window.open(mediaUrl, '_blank')}
+                        onClick={() => setSelectedImage(mediaUrl)}
                     />
                     {msg.content && <div style={{ marginTop: '5px' }}>{msg.content}</div>}
                 </div>
@@ -506,6 +511,28 @@ export default function ChatPage() {
                             Cerrar
                         </button>
                     </div>
+                </div>
+            )}
+
+            {/* Image Lightbox */}
+            {selectedImage && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.85)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', zIndex: 2000,
+                    cursor: 'pointer'
+                }} onClick={() => setSelectedImage(null)}>
+                    <img
+                        src={selectedImage}
+                        alt="Full size"
+                        style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
+                    />
+                    <button style={{
+                        position: 'absolute', top: '20px', right: '20px',
+                        background: 'rgba(255,255,255,0.2)', color: 'white',
+                        border: 'none', borderRadius: '50%', width: '40px', height: '40px',
+                        fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>✕</button>
                 </div>
             )}
         </div>
