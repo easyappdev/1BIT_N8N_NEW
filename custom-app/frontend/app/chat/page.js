@@ -267,9 +267,6 @@ export default function ChatPage() {
 
         const mediaUrl = getFullUrl(msg.media_url);
 
-        // Log para depuración extrema
-        console.log(`DEBUG: Mensaje ${msg.id} | Tipo: ${msg.media_type} | URL: ${msg.media_url ? 'PRESENTE (' + mediaUrl.substring(0, 30) + '...)' : 'VACÍA (NULL/UNDEFINED)'}`);
-
         if (msg.media_type === 'image') {
             return (
                 <div>
