@@ -501,7 +501,13 @@ export default function ChatPage() {
                             <div key={msg.id} className={`message ${msg.user_id ? 'sent' : 'received'}`}>
                                 <div className="message-sender">{msg.sender_name || 'Client'}</div>
                                 <div>{renderMessageContent(msg)}</div>
-                                NOT_USED
+                                <div className="message-meta" style={{ color: '#ccc', fontSize: '11px', textAlign: 'right', marginTop: '4px' }}>
+                                    {(() => {
+                                        const ts = Number(msg.timestamp);
+                                        const date = new Date(ts > 1000000000000 ? ts : ts * 1000);
+                                        return isNaN(date.getTime()) ? '' : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    })()}
+                                </div>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
