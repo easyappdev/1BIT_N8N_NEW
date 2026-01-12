@@ -337,7 +337,12 @@ export default function ChatPage() {
         } else if (msg.media_type === 'document') {
             return (
                 <div
-                    onClick={() => handleOpenDocument(mediaUrl)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        // Fallback logs
+                        console.log("Document clicked:", mediaUrl);
+                        handleOpenDocument(mediaUrl);
+                    }}
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -345,28 +350,35 @@ export default function ChatPage() {
                         gap: '5px',
                         cursor: 'pointer',
                         padding: '10px',
-                        background: 'rgba(0, 0, 0, 0.05)',
-                        border: '1px solid rgba(0,0,0,0.1)',
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #ddd',
                         borderRadius: '8px',
-                        maxWidth: '220px'
+                        maxWidth: '220px',
+                        position: 'relative'
                     }}
                 >
-                    {msg.thumbnail && msg.thumbnail.length > 20 ? (
+                    {/* Render Image only if valid length, otherwise fallback */}
+                    {msg.thumbnail && msg.thumbnail.length > 50 ? (
                         <img
                             src={`data:image/jpeg;base64,${msg.thumbnail}`}
-                            alt="Previsualización"
-                            style={{ width: '100%', height: 'auto', borderRadius: '4px', objectFit: 'cover' }}
-                            onError={(e) => { e.target.style.display = 'none'; }}
+                            alt=""
+                            style={{ width: '100%', height: 'auto', borderRadius: '4px', objectFit: 'cover', display: 'block' }}
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block'; // Show fallback
+                            }}
                         />
-                    ) : (
-                        <div style={{ fontSize: '32px' }}>📄</div>
-                    )}
+                    ) : null}
+
+                    {/* Fallback Icon: Shown by default if no thumbnail, or if thumbnail errors (via onError above) */}
+                    <div style={{ fontSize: '32px', display: (msg.thumbnail && msg.thumbnail.length > 50) ? 'none' : 'block' }}>📄</div>
+
                     <div style={{
                         color: '#333',
                         textDecoration: 'none',
                         wordBreak: 'break-word',
                         fontSize: '13px',
-                        fontWeight: '500',
+                        fontWeight: '600',
                         lineHeight: '1.3'
                     }}>
                         {msg.content || 'Ver Documento'}
@@ -489,7 +501,7 @@ export default function ChatPage() {
                             <div key={msg.id} className={`message ${msg.user_id ? 'sent' : 'received'}`}>
                                 <div className="message-sender">{msg.sender_name || 'Client'}</div>
                                 <div>{renderMessageContent(msg)}</div>
-                                <div className="message-meta">{new Date(msg.timestamp).toLocaleTimeString()}</div>
+                                NOT_USED
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
