@@ -344,27 +344,30 @@ export default function ChatPage() {
                         alignItems: 'flex-start',
                         gap: '5px',
                         cursor: 'pointer',
-                        padding: '8px',
-                        background: 'rgba(255, 255, 255, 0.1)',
+                        padding: '10px',
+                        background: 'rgba(0, 0, 0, 0.05)',
+                        border: '1px solid rgba(0,0,0,0.1)',
                         borderRadius: '8px',
                         maxWidth: '220px'
                     }}
                 >
-                    {msg.thumbnail ? (
+                    {msg.thumbnail && msg.thumbnail.length > 20 ? (
                         <img
                             src={`data:image/jpeg;base64,${msg.thumbnail}`}
                             alt="Previsualización"
                             style={{ width: '100%', height: 'auto', borderRadius: '4px', objectFit: 'cover' }}
+                            onError={(e) => { e.target.style.display = 'none'; }}
                         />
                     ) : (
-                        <div style={{ fontSize: '24px' }}>📄</div>
+                        <div style={{ fontSize: '32px' }}>📄</div>
                     )}
                     <div style={{
-                        color: 'white',
-                        textDecoration: 'underline',
+                        color: '#333',
+                        textDecoration: 'none',
                         wordBreak: 'break-word',
-                        fontSize: '14px',
-                        lineHeight: '1.2'
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        lineHeight: '1.3'
                     }}>
                         {msg.content || 'Ver Documento'}
                     </div>
