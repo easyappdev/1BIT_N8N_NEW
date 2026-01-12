@@ -338,9 +338,36 @@ export default function ChatPage() {
             return (
                 <div
                     onClick={() => handleOpenDocument(mediaUrl)}
-                    style={{ color: 'white', textDecoration: 'underline', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: '5px',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px',
+                        maxWidth: '220px'
+                    }}
                 >
-                    📄 {msg.content || 'Ver Documento'}
+                    {msg.thumbnail ? (
+                        <img
+                            src={`data:image/jpeg;base64,${msg.thumbnail}`}
+                            alt="Previsualización"
+                            style={{ width: '100%', height: 'auto', borderRadius: '4px', objectFit: 'cover' }}
+                        />
+                    ) : (
+                        <div style={{ fontSize: '24px' }}>📄</div>
+                    )}
+                    <div style={{
+                        color: 'white',
+                        textDecoration: 'underline',
+                        wordBreak: 'break-word',
+                        fontSize: '14px',
+                        lineHeight: '1.2'
+                    }}>
+                        {msg.content || 'Ver Documento'}
+                    </div>
                 </div>
             );
         }
