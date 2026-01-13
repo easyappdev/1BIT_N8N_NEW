@@ -131,18 +131,7 @@ services:
   chatwoot-base: &chatwoot-base
     image: chatwoot/chatwoot:latest
     restart: always
-    environment:
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_DATABASE=chatwoot
-      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - REDIS_URL=${REDIS_URL}
-      - RAILS_ENV=${RAILS_ENV}
-      - RAILS_MAX_THREADS=${RAILS_MAX_THREADS}
-      - NODE_ENV=${NODE_ENV}
-      - INSTALLATION_ENV=docker
+    env_file: .env
     volumes:
       - /1BIT_N8N_NEW/chatwootData:/app/storage
 
@@ -155,6 +144,7 @@ services:
       - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=${CHATWOOT_DOMAIN}
       - LETSENCRYPT_EMAIL=${SSL_EMAIL}
+      - RAILS_ENV=production
     depends_on:
       postgres:
         condition: service_healthy
