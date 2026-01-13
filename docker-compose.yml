@@ -124,6 +124,7 @@ services:
       - LOG_LEVEL=info
       - LOG_BAILEYS=error
       - CHATWOOT_ENABLED=true
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
       - CHATWOOT_URL=http://chatwoot-web:3000
     env_file:
       - .env
