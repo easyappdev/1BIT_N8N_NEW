@@ -150,6 +150,7 @@ services:
       - LETSENCRYPT_HOST=${CHATWOOT_DOMAIN}
       - LETSENCRYPT_EMAIL=${SSL_EMAIL}
       - RAILS_ENV=production
+      - FORCE_SSL_ONLY=false
     depends_on:
       postgres:
         condition: service_healthy
