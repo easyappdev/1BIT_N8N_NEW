@@ -123,6 +123,7 @@ services:
       - AUTHENTICATION_EXPOSE_IN_FETCH_QR=true
       - LOG_LEVEL=info
       - LOG_BAILEYS=error
+      - CHATWOOT_ENABLED=true
 
     depends_on:
       postgres:
