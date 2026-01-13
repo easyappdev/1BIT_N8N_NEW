@@ -124,6 +124,9 @@ services:
       - LOG_LEVEL=info
       - LOG_BAILEYS=error
       - CHATWOOT_ENABLED=true
+      - CHATWOOT_URL=http://chatwoot-web:3000
+    env_file:
+      - .env
 
     depends_on:
       postgres:
