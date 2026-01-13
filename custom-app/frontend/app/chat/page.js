@@ -259,41 +259,65 @@ export default function ChatPage() {
 
     if (loading) return <div>Loading...</div>;
 
-    const handleOpenDocument = (dataUrl) => {
+    const handleOpenDocument = (dataUrl, customFileName = 'documento.pdf') => {
         if (!dataUrl) return;
 
-        // If it's a regular HTTP URL, just open it
-        if (dataUrl.startsWith('http')) {
+        // Ensure we have a Data URI or HTTP URL
+        const isDataUri = dataUrl.startsWith('data:');
+        const isHttp = dataUrl.startsWith('http');
+
+        if (isHttp) {
             window.open(dataUrl, '_blank');
             return;
         }
 
-        // If it's a Data URL, convert to Blob to bypass security restriction
         try {
-            const parts = dataUrl.split(',');
-            if (parts.length > 1) {
-                const mimeMatch = parts[0].match(/:(.*?);/);
-                const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
-                const bstr = atob(parts[1]);
-                let n = bstr.length;
-                const u8arr = new Uint8Array(n);
-                while (n--) {
-                    u8arr[n] = bstr.charCodeAt(n);
-                }
-                const blob = new Blob([u8arr], { type: mime });
-                const blobUrl = URL.createObjectURL(blob);
+            // If it's raw Base64 or Data URI, convert to Blob
+            let base64Content = dataUrl;
+            let mimeType = 'application/octet-stream';
 
-                const newWin = window.open(blobUrl, '_blank');
-                if (!newWin) {
-                    alert("Por favor, permite ventanas emergentes para ver el documento.");
+            if (isDataUri) {
+                const parts = dataUrl.split(',');
+                if (parts.length > 1) {
+                    const mimeMatch = parts[0].match(/:(.*?);/);
+                    mimeType = mimeMatch ? mimeMatch[1] : mimeType;
+                    base64Content = parts[1];
                 }
-
-                // Cleanup after a delay
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+            } else {
+                // Assume raw Base64 if it's not a URL
+                base64Content = dataUrl;
+                // Simple check for PDF header in base64
+                if (base64Content.startsWith('JVBER')) mimeType = 'application/pdf';
             }
+
+            const bstr = atob(base64Content);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            const blob = new Blob([u8arr], { type: mimeType });
+            const blobUrl = URL.createObjectURL(blob);
+
+            // SENIOR WAY: Use an anchor tag to trigger a named download or open
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.target = '_blank';
+            // If we have a filename, suggest it for download
+            if (customFileName) {
+                link.download = customFileName;
+            }
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Cleanup
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
         } catch (e) {
-            console.error("Error opening document:", e);
-            // Fallback
+            console.error("Error Processing Document Data:", e);
+            // Absolute fallback
             window.open(dataUrl, '_blank');
         }
     };
@@ -301,7 +325,17 @@ export default function ChatPage() {
     const renderMessageContent = (msg) => {
         const getFullUrl = (url) => {
             if (!url) return '';
-            if (url.startsWith('http') || url.startsWith('data:')) return url; // Already an absolute URL or Data URI
+            const trimmed = url.trim();
+            // 1. Si ya es una URL completa (HTTP o DATA), no tocarla
+            if (trimmed.startsWith('http') || trimmed.startsWith('data:')) return trimmed;
+
+            // 2. Heurística Senior: Si es muy largo y no empieza con '/' (ruta local), es Base64 puro.
+            // NOTA: Base64 PUEDE contener caracteres '/' y '+', por eso quitamos la restricción errónea anterior.
+            if (trimmed.length > 100 && !trimmed.startsWith('/')) {
+                return trimmed;
+            }
+
+            // 3. De lo contrario, es una ruta de archivo relativa en nuestro servidor
             return `${process.env.NEXT_PUBLIC_API_URL}${url}`;
         };
 
@@ -339,9 +373,7 @@ export default function ChatPage() {
                 <div
                     onClick={(e) => {
                         e.stopPropagation();
-                        // Fallback logs
-                        console.log("Document clicked:", mediaUrl);
-                        handleOpenDocument(mediaUrl);
+                        handleOpenDocument(mediaUrl, msg.content || 'archivo.pdf');
                     }}
                     style={{
                         display: 'flex',
