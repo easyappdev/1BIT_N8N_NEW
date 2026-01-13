@@ -12,7 +12,7 @@ Your platform consists of three main parts working together:
 
 ### Step 1: Connect WhatsApp
 1.  Go to **[https://evolutionapi.1bit.ar](https://evolutionapi.1bit.ar)**.
-2.  Login with your API Key (default is often in your `.env` as `AUTHENTICATION_API_KEY` or `simplekey123`).
+2.  Login with your API Key (default is often in your `.env` as `AUTHENTICATION_API_KEY` or `supersecreto123`).
 3.  Create a new Instance (e.g., named "default").
 4.  Scan the QR Code with your WhatsApp mobile app.
 5.  **Verify**: Ensure the status says "Connected".
