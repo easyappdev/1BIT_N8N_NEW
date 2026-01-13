@@ -30,7 +30,7 @@ services:
       - ${DOCKER_SOCKET_UNIX}:/var/run/docker.sock:ro
 
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     restart: always
     container_name: postgres-wachat
     environment:
