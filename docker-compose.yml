@@ -129,7 +129,7 @@ services:
         condition: service_healthy
 
   chatwoot-base: &chatwoot-base
-    image: chatwoot/chatwoot:v3.13.1
+    image: chatwoot/chatwoot:latest
     restart: always
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
