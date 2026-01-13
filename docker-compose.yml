@@ -124,9 +124,49 @@ services:
       - LOG_LEVEL=info
       - LOG_BAILEYS=error
 
-    volumes:
-      - /1BIT_N8N_NEW/evolution_instances:/app/instances
-      - /1BIT_N8N_NEW/evolution_config:/app/config
     depends_on:
       postgres:
         condition: service_healthy
+
+  chatwoot-base: &chatwoot-base
+    image: chatwoot/chatwoot:v3.13.1
+    restart: always
+    environment:
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DATABASE=chatwoot
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - RAILS_ENV=${RAILS_ENV}
+      - RAILS_MAX_THREADS=${RAILS_MAX_THREADS}
+      - NODE_ENV=${NODE_ENV}
+      - INSTALLATION_ENV=docker
+    volumes:
+      - /1BIT_N8N_NEW/chatwootData:/app/storage
+
+  chatwoot-web:
+    <<: *chatwoot-base
+    container_name: chatwoot-web-wachat
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    environment:
+      - VIRTUAL_HOST=${CHATWOOT_DOMAIN}
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=${CHATWOOT_DOMAIN}
+      - LETSENCRYPT_EMAIL=${SSL_EMAIL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  chatwoot-worker:
+    <<: *chatwoot-base
+    container_name: chatwoot-worker-wachat
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
