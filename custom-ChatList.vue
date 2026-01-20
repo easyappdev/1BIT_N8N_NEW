@@ -521,28 +521,6 @@ function initializeExistingFilterToModal() {
   appliedFilter.value = [...appliedFilter.value, ...otherFilters];
 }
 
-function initializeExistingFilterToModal() {
-  const statusFilter = initializeStatusAndAssigneeFilterToModal(
-    activeStatus.value,
-    currentUserDetails.value,
-    activeAssigneeTab.value
-  );
-  // TODO: Remove the usage of useCamelCase after migrating useFilter to camelcase
-  if (statusFilter) {
-    appliedFilter.value = [...appliedFilter.value, useCamelCase(statusFilter)];
-  }
-
-  // TODO: Remove the usage of useCamelCase after migrating useFilter to camelcase
-  const otherFilters = initializeInboxTeamAndLabelFilterToModal(
-    props.conversationInbox,
-    inbox.value,
-    props.teamId,
-    activeTeam.value,
-    props.label
-  ).map(useCamelCase);
-
-  appliedFilter.value = [...appliedFilter.value, ...otherFilters];
-}
 
 function initializeFolderToFilterModal(newActiveFolder) {
   // Here we are setting the params for edit folder modal.
