@@ -22,7 +22,9 @@ COPY custom-ConversationFilter.vue /app/app/javascript/dashboard/components-next
 RUN cd /app && \
     export DATABASE_URL=postgres://dummy:dummy@127.0.0.1:5432/dummy && \
     export REDIS_URL=redis://127.0.0.1:6379/1 && \
-    bundle exec rails assets:precompile RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder
+    bundle exec rails assets:precompile RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder && \
+    # Fix permissions: Give ownership of /app to the runtime user (1001) because we built as root
+    chown -R 1001:0 /app
 
 # Switch back to default user (UID 1001 is standard for Chatwoot)
 USER 1001
