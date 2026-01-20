@@ -35,9 +35,13 @@ const currentUser = useMapGetter('auth/getCurrentUser');
 
 const patchedFilterTypes = computed(() => {
     let types = filterTypes; 
-    const isAgent = currentUser.value?.role === 'agent';
+    const role = currentUser.value?.role;
+    const type = currentUser.value?.type;
+    const isSuperAdmin = type === 'super_admin';
+    const isAdmin = role === 'administrator' || role === 'admin';
+    const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
 
-    if (isAgent) {
+    if (strictlyRestricted) {
         // Deep clone to avoid mutating original for others
         types = JSON.parse(JSON.stringify(types));
         
@@ -46,11 +50,6 @@ const patchedFilterTypes = computed(() => {
         if (statusType && statusType.filterOperators) {
              const equalOp = statusType.filterOperators.find(op => op.value === 'equal_to');
              if (equalOp && equalOp.options) {
-                 // Remove 'all' from options
-                 // 'all' value is typically 'all' or key usually matches i18n key 'all'
-                 // Need to inspect what 'all' maps to. Assuming 'all'.
-                 // If not found, it might be the last one.
-                 // Typical options: open, resolved, pending, snoozed, all.
                  equalOp.options = equalOp.options.filter(opt => opt.value !== 'all');
              }
         }

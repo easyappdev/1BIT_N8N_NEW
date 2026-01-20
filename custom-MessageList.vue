@@ -47,16 +47,19 @@ const currentChat = useMapGetter('getSelectedChat');
 const allMessages = computed(() => {
   let msgs = useCamelCase(props.messages, { deep: true });
   
-  if (currentUser.value?.role === 'agent') {
+  const role = currentUser.value?.role;
+  const type = currentUser.value?.type;
+  const isSuperAdmin = type === 'super_admin';
+  const isAdmin = role === 'administrator' || role === 'admin';
+  const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
+
+  if (strictlyRestricted) {
       // Get limit from custom attributes (check both cases)
       const attrs = currentChat.value?.customAttributes || currentChat.value?.custom_attributes || {};
       // Parse the limit, defaulting to 20 if not set or invalid
       let limit = parseInt(attrs.agent_history_limit || attrs.history_limit, 10);
-      if (isNaN(limit)) limit = 20; // Default limit
+      if (isNaN(limit)) limit = 20; 
 
-      // If limit is 0, maybe they want to see 0 messages? Or implies 'all'? 
-      // Let's assume 0 means 'show nothing' for safety, or we could treat -1 as 'all'.
-      // For now, simple slice.
       if (msgs.length > limit) {
          msgs = msgs.slice(msgs.length - limit);
       }

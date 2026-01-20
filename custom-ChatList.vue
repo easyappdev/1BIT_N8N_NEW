@@ -200,7 +200,10 @@ const userPermissions = computed(() => {
 const assigneeTabItems = computed(() => {
   // --- PATCH START: Filter 'Unassigned' and 'All' for Agents ---
   const role = currentUser.value?.role;
-  const isAgent = role === 'agent';
+  const type = currentUser.value?.type;
+  const isSuperAdmin = type === 'super_admin';
+  const isAdmin = role === 'administrator' || role === 'admin';
+  const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
   const forbiddenTabs = ['unassigned', 'all'];
 
   let tabs = filterItemsByPermission(
@@ -209,7 +212,7 @@ const assigneeTabItems = computed(() => {
     item => item.permissions
   );
 
-  if (isAgent) {
+  if (strictlyRestricted) {
     tabs = tabs.filter(t => !forbiddenTabs.includes(t.key));
   }
 

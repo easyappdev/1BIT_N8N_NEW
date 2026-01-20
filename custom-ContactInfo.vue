@@ -66,8 +66,10 @@ export default {
   computed: {
     ...mapGetters({ uiFlags: 'contacts/getUIFlags' }),
     // --- PATCH START: Helper for permissions ---
-    isAgent() {
-        return this.currentUser.value?.role === 'agent';
+    isRestrictedAgent() {
+        const role = this.currentUser.value?.role;
+        const type = this.currentUser.value?.type;
+        return role === 'agent' && type !== 'super_admin' && role !== 'administrator' && role !== 'admin';
     },
     // --- PATCH END ---
     contactProfileLink() {
@@ -237,9 +239,9 @@ export default {
           {{ additionalAttributes.description }}
         </p>
         <div class="flex flex-col items-start w-full gap-2">
-          <!-- PATCH START: v-if="!isAgent" for restricted rows -->
+          <!-- PATCH START: v-if="!isRestrictedAgent" for restricted rows -->
           <ContactInfoRow
-            v-if="!isAgent"
+            v-if="!isRestrictedAgent"
             :href="contact.email ? `mailto:${contact.email}` : ''"
             :value="contact.email"
             icon="mail"
@@ -248,7 +250,7 @@ export default {
             show-copy
           />
           <ContactInfoRow
-            v-if="!isAgent"
+            v-if="!isRestrictedAgent"
             :href="contact.phone_number ? `tel:${contact.phone_number}` : ''"
             :value="contact.phone_number"
             icon="call"
@@ -300,7 +302,7 @@ export default {
         
         <!-- PATCH START: Hide Voice Call Button from Agent -->
         <VoiceCallButton
-          v-if="!isAgent"
+          v-if="!isRestrictedAgent"
           :phone="contact.phone_number"
           :contact-id="contact.id"
           icon="i-ri-phone-fill"
@@ -312,7 +314,7 @@ export default {
         <!-- PATCH END -->
 
         <NextButton
-          v-if="!isAgent"
+          v-if="!isRestrictedAgent"
           v-tooltip.top-end="$t('EDIT_CONTACT.BUTTON_LABEL')"
           icon="i-ph-pencil-simple"
           slate
@@ -321,7 +323,7 @@ export default {
           @click="toggleEditModal"
         />
         <NextButton
-          v-if="!isAgent"
+          v-if="!isRestrictedAgent"
           v-tooltip.top-end="$t('CONTACT_PANEL.MERGE_CONTACT')"
           icon="i-ph-arrows-merge"
           slate

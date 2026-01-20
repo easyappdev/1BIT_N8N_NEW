@@ -143,11 +143,12 @@ const reportRoutes = computed(() => newReportRoutes());
 const menuItems = computed(() => {
   // --- PATCH START: Filter Logic ---
   const role = currentUser.value?.role;
-  console.log('[DEBUG-SIDEBAR] Current User Role:', role); 
-  const isAgent = role === 'agent';
-  // Redundant check to be absolutely sure admins aren't caught
-  const isAdmin = role === 'administrator' || role === 'admin'; 
-  const strictlyRestricted = isAgent && !isAdmin;
+  const type = currentUser.value?.type;
+  console.log('[DEBUG-SIDEBAR] Role:', role, 'Type:', type); 
+  const isSuperAdmin = type === 'super_admin';
+  const isAdmin = role === 'administrator' || role === 'admin';
+  const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
+  // --- PATCH END ---
   const forbiddenRootItems = ['Contacts', 'Reports', 'Campaigns', 'Captain', 'Settings', 'Portals'];
 
   let items = [

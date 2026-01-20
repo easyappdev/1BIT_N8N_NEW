@@ -97,7 +97,11 @@ const contactAdditionalAttributes = computed(
 
 // --- PATCH START: Check Role ---
 const currentUser = useMapGetter('auth/getCurrentUser');
-const isAgent = computed(() => currentUser.value?.role === 'agent');
+const strictlyRestricted = computed(() => {
+  const role = currentUser.value?.role;
+  const type = currentUser.value?.type;
+  return role === 'agent' && type !== 'super_admin' && role !== 'administrator' && role !== 'admin';
+});
 // --- PATCH END ---
 
 const getContactDetails = () => {
@@ -158,9 +162,9 @@ onMounted(() => {
             v-if="element.name === 'conversation_actions'"
             class="conversation--actions"
           >
-            <!-- --- PATCH START: Hide Assignment for Agents --- -->
+            <!-- --- PATCH START: Hide Assignment for Restricted Agents --- -->
             <AccordionItem
-              v-if="!isAgent"
+              v-if="!strictlyRestricted"
               :title="$t('CONVERSATION_SIDEBAR.ACCORDION.CONVERSATION_ACTIONS')"
               :is-open="isContactSidebarItemOpen('is_conv_actions_open')"
               @toggle="
