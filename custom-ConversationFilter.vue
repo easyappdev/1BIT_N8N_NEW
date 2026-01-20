@@ -34,14 +34,14 @@ const { filterTypes } = useConversationFilterContext();
 const currentUser = useMapGetter('auth/getCurrentUser');
 
 const patchedFilterTypes = computed(() => {
-    let types = filterTypes; 
-    const role = currentUser.value?.role;
+    let types = filterTypes.value; // It's a computed ref from useConversationFilterContext()
+    const role = useMapGetter('auth/getCurrentRole').value;
     const type = currentUser.value?.type;
-    const isSuperAdmin = type === 'super_admin';
+    const isSuperAdmin = type === 'SuperAdmin';
     const isAdmin = role === 'administrator' || role === 'admin';
     const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
 
-    if (strictlyRestricted) {
+    if (strictlyRestricted && Array.isArray(types)) {
         // Deep clone to avoid mutating original for others
         types = JSON.parse(JSON.stringify(types));
         
@@ -54,7 +54,7 @@ const patchedFilterTypes = computed(() => {
              }
         }
     }
-    return types;
+    return types || [];
 });
 // --- PATCH END ---
 

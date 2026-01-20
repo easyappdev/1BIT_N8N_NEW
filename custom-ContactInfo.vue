@@ -53,7 +53,8 @@ export default {
     // --- PATCH END ---
     return {
       isAdmin,
-      currentUser
+      currentUser,
+      currentRole: useMapGetter('auth/getCurrentRole')
     };
   },
   data() {
@@ -67,9 +68,9 @@ export default {
     ...mapGetters({ uiFlags: 'contacts/getUIFlags' }),
     // --- PATCH START: Helper for permissions ---
     isRestrictedAgent() {
-        const role = this.currentUser.value?.role;
+        const role = this.currentRole.value;
         const type = this.currentUser.value?.type;
-        return role === 'agent' && type !== 'super_admin' && role !== 'administrator' && role !== 'admin';
+        return role === 'agent' && type !== 'SuperAdmin' && role !== 'administrator' && role !== 'admin';
     },
     // --- PATCH END ---
     contactProfileLink() {

@@ -142,10 +142,13 @@ const reportRoutes = computed(() => newReportRoutes());
 
 const menuItems = computed(() => {
   // --- PATCH START: Filter Logic ---
-  const role = currentUser.value?.role;
-  const type = currentUser.value?.type;
+  const currentRole = useMapGetter('getCurrentRole');
+  const role = currentRole.value;
+  const type = currentUser.value?.type; // Global type
   console.log('[DEBUG-SIDEBAR] Role:', role, 'Type:', type); 
-  const isSuperAdmin = type === 'super_admin';
+  
+  // SuperAdmin is global type, administrator is local role.
+  const isSuperAdmin = type === 'SuperAdmin';
   const isAdmin = role === 'administrator' || role === 'admin';
   const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
   // --- PATCH END ---

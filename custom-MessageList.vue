@@ -47,9 +47,9 @@ const currentChat = useMapGetter('getSelectedChat');
 const allMessages = computed(() => {
   let msgs = useCamelCase(props.messages, { deep: true });
   
-  const role = currentUser.value?.role;
+  const role = useMapGetter('auth/getCurrentRole').value;
   const type = currentUser.value?.type;
-  const isSuperAdmin = type === 'super_admin';
+  const isSuperAdmin = type === 'SuperAdmin';
   const isAdmin = role === 'administrator' || role === 'admin';
   const strictlyRestricted = role === 'agent' && !isSuperAdmin && !isAdmin;
 

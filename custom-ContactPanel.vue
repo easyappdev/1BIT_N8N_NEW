@@ -97,10 +97,11 @@ const contactAdditionalAttributes = computed(
 
 // --- PATCH START: Check Role ---
 const currentUser = useMapGetter('auth/getCurrentUser');
+const currentRole = useMapGetter('auth/getCurrentRole');
 const strictlyRestricted = computed(() => {
-  const role = currentUser.value?.role;
+  const role = currentRole.value;
   const type = currentUser.value?.type;
-  return role === 'agent' && type !== 'super_admin' && role !== 'administrator' && role !== 'admin';
+  return role === 'agent' && type !== 'SuperAdmin' && role !== 'administrator' && role !== 'admin';
 });
 // --- PATCH END ---
 
