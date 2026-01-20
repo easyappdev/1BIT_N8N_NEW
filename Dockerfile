@@ -16,6 +16,8 @@ COPY custom-Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/Si
 COPY custom-MessageList.vue /app/app/javascript/dashboard/components-next/message/MessageList.vue
 COPY custom-ContactInfo.vue /app/app/javascript/dashboard/routes/dashboard/conversation/contact/ContactInfo.vue
 COPY custom-ConversationFilter.vue /app/app/javascript/dashboard/components-next/filter/ConversationFilter.vue
+COPY custom-ChatList.vue /app/app/javascript/dashboard/components/ChatList.vue
+COPY custom-ContactPanel.vue /app/app/javascript/dashboard/routes/dashboard/conversation/ContactPanel.vue
 
 # Run compilation (heavy step)
 # We set dummy DB/Redis URLs to prevent connection errors during asset compilation

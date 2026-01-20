@@ -143,7 +143,11 @@ const reportRoutes = computed(() => newReportRoutes());
 const menuItems = computed(() => {
   // --- PATCH START: Filter Logic ---
   const role = currentUser.value?.role;
+  console.log('[DEBUG-SIDEBAR] Current User Role:', role); 
   const isAgent = role === 'agent';
+  // Redundant check to be absolutely sure admins aren't caught
+  const isAdmin = role === 'administrator' || role === 'admin'; 
+  const strictlyRestricted = isAgent && !isAdmin;
   const forbiddenRootItems = ['Contacts', 'Reports', 'Campaigns', 'Captain', 'Settings', 'Portals'];
 
   let items = [
@@ -289,7 +293,7 @@ const menuItems = computed(() => {
   // Since I am writing to a file, I need the FULL content. 
   // I will use the USER PROVIDED content from the artifacts if possible, or the one I read.
   
-  if (isAgent) {
+  if (strictlyRestricted) {
       items = items.filter(i => !forbiddenRootItems.includes(i.name));
       items = items.map(i => {
           if (i.name === 'Conversation') {
