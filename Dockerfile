@@ -3,8 +3,13 @@ FROM chatwoot/chatwoot:latest
 # Switch to root to perform copies
 USER root
 
-# Install pnpm (required by Vite but missing in some base images)
-RUN npm install -g pnpm
+# Install Node.js and pnpm (Base image might be slim/production and lack build tools)
+RUN if command -v apk >/dev/null; then \
+    apk add --no-cache nodejs npm; \
+    elif command -v apt-get >/dev/null; then \
+    apt-get update && apt-get install -y nodejs npm; \
+    fi && \
+    npm install -g pnpm
 
 # Copy custom patched files
 COPY custom-Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/Sidebar.vue
