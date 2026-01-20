@@ -24,5 +24,5 @@ RUN cd /app && \
     export REDIS_URL=redis://127.0.0.1:6379/1 && \
     bundle exec rails assets:precompile RAILS_ENV=production SECRET_KEY_BASE=precompile_placeholder
 
-# Switch back to chatwoot user
-USER chatwoot
+# Switch back to default user (UID 1001 is standard for Chatwoot)
+USER 1001
