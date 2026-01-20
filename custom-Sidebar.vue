@@ -609,8 +609,8 @@ const menuItems = computed(() => {
   ];
 
   if (strictlyRestricted) {
-    const forbiddenRootItems = ['Captain', 'Reports', 'Campaigns', 'Portals', 'Settings', 'Companies'];
-    const forbiddenChildren = ['Mentions', 'Unattended', 'Active'];
+    const forbiddenRootItems = ['Captain', 'Reports', 'Campaigns', 'Portals', 'Settings', 'Companies', 'Contacts'];
+    const forbiddenChildren = ['Mentions', 'Unattended', 'Active', 'Channels'];
     
     items = items.filter(i => !forbiddenRootItems.includes(i.name));
     items = items.map(i => {
