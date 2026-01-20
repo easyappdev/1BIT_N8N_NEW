@@ -133,8 +133,12 @@ services:
       postgres:
         condition: service_healthy
 
-  chatwoot-base: &chatwoot-base
-    image: chatwoot/chatwoot:latest
+  chatwoot-base:
+    # image: chatwoot/chatwoot:latest
+    &chatwoot-base
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     env_file: .env
     volumes:
