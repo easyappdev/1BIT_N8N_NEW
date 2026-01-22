@@ -27,8 +27,8 @@ const isCopilotPanelOpen = computed(
 );
 
 // --- PATCH START: Access Control ---
-const currentUser = useMapGetter('auth/getCurrentUser');
-const currentRole = useMapGetter('auth/getCurrentRole');
+const currentUser = useMapGetter('getCurrentUser');
+const currentRole = useMapGetter('getCurrentRole');
 
 const isSuperAdmin = computed(() => currentUser.value?.type === 'SuperAdmin');
 const isAdmin = computed(() => currentRole.value === 'administrator' || currentRole.value === 'admin');
