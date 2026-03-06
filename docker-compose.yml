@@ -137,41 +137,41 @@ services:
       postgres:
         condition: service_healthy
 
-  chatwoot-base:
-    # image: chatwoot/chatwoot:latest
-    &chatwoot-base
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    env_file: .env
-    volumes:
-      - ./chatwootData:/app/storage
+  # chatwoot-base:
+  #   # image: chatwoot/chatwoot:latest
+  #   &chatwoot-base
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   env_file: .env
+  #   volumes:
+  #     - ./chatwootData:/app/storage
 
-  chatwoot-web:
-    <<: *chatwoot-base
-    container_name: chatwoot-web-wachat
-    command: >
-      sh -c "rm -f /app/tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
-    environment:
-      - VIRTUAL_HOST=${CHATWOOT_DOMAIN}
-      - VIRTUAL_PORT=3000
-      - LETSENCRYPT_HOST=${CHATWOOT_DOMAIN}
-      - LETSENCRYPT_EMAIL=${SSL_EMAIL}
-      - RAILS_ENV=production
-      - FORCE_SSL_ONLY=false
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+  # chatwoot-web:
+  #   <<: *chatwoot-base
+  #   container_name: chatwoot-web-wachat
+  #   command: >
+  #     sh -c "rm -f /app/tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+  #   environment:
+  #     - VIRTUAL_HOST=${CHATWOOT_DOMAIN}
+  #     - VIRTUAL_PORT=3000
+  #     - LETSENCRYPT_HOST=${CHATWOOT_DOMAIN}
+  #     - LETSENCRYPT_EMAIL=${SSL_EMAIL}
+  #     - RAILS_ENV=production
+  #     - FORCE_SSL_ONLY=false
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
 
-  chatwoot-worker:
-    <<: *chatwoot-base
-    container_name: chatwoot-worker-wachat
-    command: bundle exec sidekiq -C config/sidekiq.yml
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
+  # chatwoot-worker:
+  #   <<: *chatwoot-base
+  #   container_name: chatwoot-worker-wachat
+  #   command: bundle exec sidekiq -C config/sidekiq.yml
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_started
